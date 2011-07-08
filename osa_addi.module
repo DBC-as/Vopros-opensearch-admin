@@ -46,7 +46,6 @@ function osa_addi_create_object($object, $uuid, $settings = array()) {
   $url = variable_get('osa_addi_soap_url', 'http://opensearchadmin.addi.dk/0.5/');
   $client = new NanoSOAPClient($url);
   $reponse_xml = $client->curlRequest($url, 'POST', $xml_body, $xml_headers);
-  dpm($reponse_xml);
 
   $doc = DOMDocument::loadXML($reponse_xml);
   if ($doc->getElementsByTagName('error')->item(0)) {
