@@ -109,9 +109,11 @@ function osa_addi_create_object_request_xml($object, $uuid, $settings = array())
   // Create the docbook:article
   $docbook_article = $doc->createElement('docbook:article');
   $docbook_article->appendChild($doc->createElement('docbook:title', $object->title));
-  $publisher = $doc->createElement('docbook:publisher');
-  $publisher->appendChild($doc->createElement('docbook:publishername', $settings['source']));
-  $docbook_article->appendChild($publisher);
+  $docbook_info = $doc->createElement('docbook:info');
+  $docbook_publisher = $doc->createElement('docbook:publisher');
+  $docbook_publisher->appendChild($doc->createElement('docbook:publishername', $settings['source']));
+  $docbook_info->appendChild($docbook_publisher);
+  $docbook_article->appendChild($docbook_info);
 
   // Create the section which holds the creations and answer set.
   $docbook_section = $doc->createElement('docbook:section');
