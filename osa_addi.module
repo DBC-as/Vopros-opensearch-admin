@@ -36,13 +36,16 @@ function osa_addi_settings_form($form, &$form_state) {
   return system_settings_form($form);
 }
 
-function osa_addi_create_object($object, $uuid, $settings = array()) {
+/**
+ * Create a new object or update existing in external DB.
+ */
+function osa_addi_create_object($object, $uuid, $settings = array(), $action = 'createObjectRequest') {
   // Set content type and send the SOAP action as a header.
   $xml_headers = array(
     'Content-Type: text/xml',
-    'SOAPAction: ns1:createObjectRequest',    
+    'SOAPAction: ns1:' . $action,
   );
-  $xml_body = osa_addi_create_object_request_xml($object, $uuid, $settings);
+  $xml_body = osa_addi_create_object_request_xml($object, $uuid, $settings, $action);
   $url = variable_get('osa_addi_soap_url', 'http://opensearchadmin.addi.dk/0.5/');
   $client = new NanoSOAPClient($url);
   $reponse_xml = $client->curlRequest($url, 'POST', $xml_body, $xml_headers);
@@ -62,7 +65,7 @@ function osa_addi_create_object($object, $uuid, $settings = array()) {
 /**
  * Create the XML string used for the create object request.
  */
-function osa_addi_create_object_request_xml($object, $uuid, $settings = array()) {
+function osa_addi_create_object_request_xml($object, $uuid, $settings = array(), $action = 'createObjectRequest') {
   $default_settings = array(
     'source' => variable_get('osa_addi_source', ''),
     'group_id_aut' => variable_get('ting_agency', ''),
@@ -78,19 +81,23 @@ function osa_addi_create_object_request_xml($object, $uuid, $settings = array())
   $body = $doc->getElementsByTagName('Body')->item(0);
 
   // Create the create object action
-  $create_object = $doc->createElement('ns1:createObjectRequest');
+  $create_object = $doc->createElement('ns1:' . $action);
   // Create authentication element.
   $elem_authentication = $doc->createElement('ns1:authentication');
   $elem_authentication->appendChild($doc->createElement('ns1:groupIdAut', $settings['group_id_aut']));
   $create_object->appendChild($elem_authentication);
   // Create local identifier object.
-  $local_identifier = $doc->createElement('ns1:localIdentifier', $settings['group_id_aut'] . ':' . $uuid);
+  $identifier = ($action == 'createObjectRequest' ? 'localIdentifier' : 'objectIdentifier');
+  $local_identifier = $doc->createElement('ns1:' . $identifier, $settings['group_id_aut'] . ':' . $uuid);
   $create_object->appendChild($local_identifier);
   // Create the object we want to insert.
   $ns_object = $doc->createElement('ns1:object');
   // Create the record.
   $dkabm_record = $doc->createElement('dkabm:record');
   // Add values to the record.
+  if ($action == 'updateObjectRequest') {
+    $dkabm_record->appendChild($doc->createElement('ac:identifier', $uuid . '|' . $settings['group_id_aut']));
+  }
   $dkabm_record->appendChild($doc->createElement('ac:source', $settings['source']));
   $dkabm_record->appendChild($doc->createElement('dc:title', $object->title));
   $dkabm_record->appendChild($doc->createElement('dc:subject', $object->subject));
