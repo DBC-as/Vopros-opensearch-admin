@@ -77,7 +77,7 @@ function osa_addi_create_object_request_xml($object, $uuid, $settings = array(),
   $namespaces = _osa_addi_soap_create_object_ns();
   $client = new NanoSOAPClient($url, array('namespaces' => $namespaces));
   $doc = DOMDocument::loadXML($client->generateSOAPenvelope());
-  
+
   $body = $doc->getElementsByTagName('Body')->item(0);
 
   // Create the create object action
@@ -90,6 +90,14 @@ function osa_addi_create_object_request_xml($object, $uuid, $settings = array(),
   $identifier = ($action == 'createObjectRequest' ? 'localIdentifier' : 'objectIdentifier');
   $local_identifier = $doc->createElement('ns1:' . $identifier, $settings['group_id_aut'] . ':' . $uuid);
   $create_object->appendChild($local_identifier);
+
+  // If we want to delete the object - skip here.
+  if ($action == 'deleteObjectRequest') {
+    $body->appendChild($create_object);
+    // Return the XML.
+    return $doc->saveXML();
+  }
+
   // Create the object we want to insert.
   $ns_object = $doc->createElement('ns1:object');
   // Create the record.
