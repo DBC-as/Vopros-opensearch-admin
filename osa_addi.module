@@ -51,6 +51,9 @@ function osa_addi_create_object($object, $uuid, $settings = array(), $action = '
   $reponse_xml = $client->curlRequest($url, 'POST', $xml_body, $xml_headers);
 
   $doc = DOMDocument::loadXML($reponse_xml);
+  if (!$doc) {
+    return array('status' => 'error');
+  }
   if ($doc->getElementsByTagName('error')->item(0)) {
     return array('status' => $doc->getElementsByTagName('error')->item(0)->nodeValue);
   }
