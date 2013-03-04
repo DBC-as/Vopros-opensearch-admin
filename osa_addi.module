@@ -45,7 +45,7 @@ function osa_addi_create_object($object, $uuid, $settings = array(), $action = '
     'Content-Type: text/xml',
     'SOAPAction: ns1:' . $action,
   );
-  $xml_body = osa_addi_create_object_request_xml($object, $uuid, $settings, $action); 
+  $xml_body = osa_addi_create_object_request_xml($object, $uuid, $settings, $action);
   $url = variable_get('osa_addi_soap_url', 'http://opensearchadmin.addi.dk/0.5/');
   $client = new NanoSOAPClient($url);
   $reponse_xml = $client->curlRequest($url, 'POST', $xml_body, $xml_headers);
@@ -119,9 +119,6 @@ function osa_addi_create_object_request_xml($object, $uuid, $settings = array(),
   $dc_type = $doc->createElement('dc:type', 'Spørgsmål og svar');
   $dc_type->setAttribute('xsi:type', 'dkdcplus:BibDK-Type');
   $dkabm_record->appendChild($dc_type);
-  $dc_language = $doc->createElement('dc:language', 'dan');
-  $dc_language->setAttribute('xsi:type', 'dcterms:ISO639-2');
-  $dkabm_record->appendChild($dc_language);
   $dkabm_record->appendChild($doc->createElement('dc:language', 'Dansk'));
   // Add record to the ns1:object.
   $ns_object->appendChild($dkabm_record);
