@@ -1,5 +1,0 @@
-name = Open Search Admin
-description = Integration with the Open Search Admin webservice powered by addi
-core = 7.x
-dependencies[] = nanosoap
-dependencies[] = ting
